@@ -1,2 +1,2 @@
 # CodSoft
-As an Artificial Intelligence I'm uploading my assigned tasks here.
+As an Artificial Intelligence Internee I'm uploading my assigned tasks here.
