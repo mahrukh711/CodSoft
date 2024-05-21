@@ -1,0 +1,119 @@
+import sys
+
+def board_output(board):
+    for row in board:
+        print(" | ".join(row))
+        print("-" * 9)
+
+def check_winner(board):
+    # Check rows
+    for row in board:
+        if row[0] == row[1] == row[2] != " ":
+            return True, row[0]
+
+    # Check columns
+    for col in range(3):
+        if board[0][col] == board[1][col] == board[2][col] != " ":
+            return True, board[0][col]
+
+    # Check diagonals
+    if board[0][0] == board[1][1] == board[2][2] != " ":
+        return True, board[0][0]
+    if board[0][2] == board[1][1] == board[2][0] != " ":
+        return True, board[0][2]
+
+    return False, None
+
+def is_board_full(board):
+    for row in board:
+        for cell in row:
+            if cell == " ":
+                return False
+    return True
+
+def minimax(board, depth, maximizing_player):
+    if check_winner(board)[0]:
+        return -1 if check_winner(board)[1] == "AI" else 1, None
+    elif is_board_full(board):
+        return 0, None
+
+    if maximizing_player:
+        max_eval = -sys.maxsize
+        for i in range(3):
+            for j in range(3):
+                if board[i][j] == " ":
+                    board[i][j] = "AI"
+                    eval, _ = minimax(board, depth + 1, False)
+                    board[i][j] = " "
+                    max_eval = max(max_eval, eval)
+        return max_eval, None
+    else:
+        min_eval = sys.maxsize
+        for i in range(3):
+            for j in range(3):
+                if board[i][j] == " ":
+                    board[i][j] = "YOU"
+                    eval, _ = minimax(board, depth + 1, True)
+                    board[i][j] = " "
+                    min_eval = min(min_eval, eval)
+        return min_eval, None
+
+def best_move(board):
+    max_eval, move = -sys.maxsize, None
+    for i in range(3):
+        for j in range(3):
+            if board[i][j] == " ":
+                board[i][j] = "AI"
+                eval, _ = minimax(board, 0, False)
+                board[i][j] = " "
+                if eval > max_eval:
+                    max_eval = eval
+                    move = (i, j)
+    return move
+
+def main():
+    board = [[" " for _ in range(3)] for _ in range(3)]
+    player = "YOU"
+    artificial_intelligence = "AI"
+
+    print("Welcome to Tic-Tac-Toe-AI!")
+    board_output(board)
+
+    while True:
+        if player == artificial_intelligence:
+            move = best_move(board)
+            board[move[0]][move[1]] = artificial_intelligence
+            print(f"AI ({artificial_intelligence}) placed a marker at row {move[0]}, column {move[1]}")
+            board_output(board)
+
+            game_over, winner = check_winner(board)
+            if game_over:
+                print(f"AI ({winner}) wins!")
+                break
+            elif is_board_full(board):
+                print("It's a tie!")
+                break
+
+        else:
+            row = int(input(f"Player {player}, enter row (0, 1, or 2): "))
+            col = int(input(f"Player {player}, enter column (0, 1, or 2): "))
+
+            if board[row][col] != " ":
+                print("That cell is already taken. Try again.")
+                continue
+
+            board[row][col] = player
+            board_output(board)
+
+            game_over, winner = check_winner(board)
+            if game_over:
+                print(f"Congratulations {winner} wins!")
+                break
+            elif is_board_full(board):
+                print("It's a tie!")
+                break
+
+        player = "AI" if player == "YOU" else "YOU"
+
+if __name__ == "__main__":
+    main()
